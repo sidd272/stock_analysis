@@ -80,3 +80,23 @@ if selected_file:
         st.subheader('List of High/Low Times by Date')
         result_df = pd.DataFrame({'Date': filtered_dates, 'High Time': filtered_high_times, 'Low Time': filtered_low_times})
         st.dataframe(result_df)
+
+        # Analysis: low in first hour, high in last hour, and vice versa
+        def is_first_hour(tstr):
+            h, m, *_ = map(int, tstr.split(':'))
+            return (h == 9 and m >= 15) or (h == 10 and m < 15)
+        def is_last_hour(tstr):
+            h, m, *_ = map(int, tstr.split(':'))
+            return (h == 15) or (h == 14 and m >= 30)
+
+        low_first_high_last = 0
+        high_first_low_last = 0
+        for h, l in zip(filtered_high_times, filtered_low_times):
+            if is_first_hour(l) and is_last_hour(h):
+                low_first_high_last += 1
+            if is_first_hour(h) and is_last_hour(l):
+                high_first_low_last += 1
+
+        st.subheader('Special High/Low Timing Patterns')
+        st.write(f"Days where low is in first hour and high is in last hour: {low_first_high_last}")
+        st.write(f"Days where high is in first hour and low is in last hour: {high_first_low_last}")
